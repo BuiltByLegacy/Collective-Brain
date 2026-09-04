@@ -1,0 +1,81 @@
+name: Bug report
+description: Report a reproducible Collective Brain defect
+title: "[Bug]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Collective Brain. Do not include proprietary, customer, regulated, or confidential information.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the defect clearly.
+      placeholder: Collective Brain returned...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the smallest safe sequence that reproduces the problem.
+      placeholder: |
+        1. Create/Join Brain...
+        2. Add synthetic file...
+        3. Ask...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Create Brain / Join Brain
+        - Retrieval / relevance
+        - Permissions / ACLs
+        - Revision / supersession
+        - Provenance / citations
+        - Freshness / stale evidence
+        - Relationship graph
+        - Knowledge proposals / review
+        - OneDrive / SharePoint connector
+        - Box connector
+        - Claude experience
+        - Documentation / setup
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      description: Release tag or commit SHA if known.
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Storage provider
+      options:
+        - Not applicable / local synthetic POC
+        - OneDrive / SharePoint
+        - Box
+        - Mixed / multiple
+        - Other
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized evidence
+      description: Logs, screenshots, or output with sensitive details removed.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I removed confidential/proprietary/customer data from this report.
+          required: true
