@@ -1,42 +1,33 @@
 # Collective Brain
 
-**An open, shared second brain for teams that want Obsidian-like institutional memory without requiring everyone to use Obsidian.**
+**A shared memory system for teams that connects the files they already create so AI can find and reuse what the organization already knows.**
 
-Keep working in PowerPoint, Word, Excel, PDFs, OneDrive, SharePoint, or Box. Collective Brain connects that existing knowledge so Claude can retrieve what your team already knows — with permissions, provenance, revision awareness, relationships, and human-governed contribution.
+Keep working in PowerPoint, Word, Excel, PDFs, OneDrive, SharePoint, or Box. Collective Brain turns those existing files and folders into connected, permission-aware institutional memory that an AI assistant can search and reason over.
 
-> **Keep working in the tools you already use. Collective Brain turns your shared folders into a connected, multi-user second brain that your AI can reason over.**
+> **No separate knowledge app for employees. No manual wiki upkeep. No need to know which file contains the answer.**
 
-Collective Brain is designed for teams that have useful knowledge scattered across normal company files and folders, but do not have — or do not want to maintain — a shared Obsidian vault, wiki, or dedicated knowledge-management application.
+Collective Brain is for teams whose useful knowledge already exists — but is scattered across folders, people, revisions, old decks, procedures, examples, and project history.
+
+If you know tools like Obsidian, one way to think about Collective Brain is **shared Obsidian-style memory without requiring everyone to use Obsidian**. But you do not need to know or use Obsidian to understand or adopt this project.
 
 Engineering is the first implementation domain. The core architecture is intentionally domain-agnostic.
 
-## Why Collective Brain exists
+## The problem
 
-Teams already create valuable knowledge every day:
+Most teams do not lack knowledge. They lack **shared memory**.
 
-- PowerPoint decks
-- Word documents
-- Excel workbooks
-- PDFs
-- procedures and work instructions
-- lessons learned
-- design reviews
-- project notes
-- decisions
-- approved examples
-- training material
-- supplier/manufacturing feedback
-
-The problem is usually not that the knowledge does not exist. The problem is that the next person does not know **where it is, that it exists, how it relates to other work, whether it is current, or whether they are allowed to use it.**
+A teammate creates a useful deck, decision, lesson learned, procedure, example, or analysis and saves it in the normal shared drive. Weeks later, someone else has the same question and either recreates the work or asks around because they do not know the original artifact exists.
 
 Without Collective Brain:
 
 ```text
 Employee A creates useful work
         ↓
-saves it to the normal shared drive
+saves it to the normal shared folder
         ↓
-two weeks later Employee B has no idea it exists
+time passes
+        ↓
+Employee B has no idea it exists
 ```
 
 With Collective Brain:
@@ -48,30 +39,33 @@ saves it to the shared Brain folder
         ↓
 Collective Brain indexes + connects it
         ↓
-Employee B asks Claude a normal question
+Employee B asks the AI a normal question
         ↓
-Claude finds relevant prior work, relationships,
+the AI finds relevant prior work, relationships,
 revisions, decisions, examples, and provenance
 ```
 
-The goal is to provide the benefits of a connected second brain **without requiring every employee to learn or maintain another application.**
+The goal is simple:
+
+> **Let teams benefit from what the organization already knows without forcing employees to adopt another knowledge-management application.**
 
 ## Who this is for
 
 Collective Brain is a good fit for:
 
-- teams that use Claude and shared company storage
-- teams that want Obsidian-like linked institutional memory but do not use Obsidian
+- teams using Claude or another AI assistant plus shared company storage
+- teams with important context trapped in files, folders, and individual memory
 - engineering, manufacturing, quality, product, consulting, operations, and other knowledge-heavy groups
-- teams where important context is trapped in files, folders, and individual memory
-- organizations with restrictive employee environments where users may have only Claude + OneDrive/SharePoint or Box
-- multiple teams that need shared knowledge while preserving access boundaries
+- organizations that do not have a shared second-brain system today
+- teams that want connected institutional memory without maintaining a wiki or shared Obsidian vault
+- restrictive environments where employees may only have their AI assistant plus OneDrive/SharePoint or Box
+- multiple teams that need shared knowledge while preserving source permissions
 
 A normal employee should need only:
 
-- Claude
-- access to the shared OneDrive/SharePoint or Box folder
-- the normal files and Office tools they already use
+- an AI assistant
+- access to the team's shared cloud folder
+- the normal files and tools they already use
 
 They should **not** need GitHub, Obsidian, a database, CLI tools, browser extensions, a local agent, or a separate knowledge-base application.
 
@@ -80,28 +74,28 @@ They should **not** need GitHub, Obsidian, a database, CLI tools, browser extens
 Collective Brain is not:
 
 - a replacement for OneDrive, SharePoint, or Box
-- a requirement that employees adopt Obsidian
 - another wiki employees must manually maintain
+- a requirement to adopt Obsidian
 - an autonomous agent that silently edits employee work
-- a source of truth that outranks controlled company documentation
 - a permission bypass
+- a source of truth that automatically outranks controlled company documentation
 - a model-specific knowledge silo
 
 The organization owns the knowledge. AI clients consume it.
 
 ## Product model
 
-Collective Brain has three distinct parts:
+Collective Brain has three main parts:
 
-- **Collective Brain** — the shared institutional-memory system.
-- **Brain Connector** — the connection between the AI client and the selected shared OneDrive/SharePoint or Box folder, including sync, retrieval, permissions, provenance, freshness, and Graphify-style relationships.
-- **Claude Skill** — the Claude-facing behavior that teaches Claude when and how to use Collective Brain, how to distinguish authority levels, how to cite sources, and how to propose new knowledge safely.
+- **Collective Brain** — the shared institutional-memory system
+- **Brain Connector** — connects approved shared storage to the Brain while preserving permissions, provenance, revisions, freshness, and relationships
+- **AI Skill / behavior layer** — teaches the AI when and how to use the Brain, cite evidence, interpret authority, and propose new knowledge safely
 
-Employees should experience:
+The employee experience should feel like:
 
-> Connect Claude to the team Brain → select the shared folder → work normally → ask Claude questions.
+> Connect to the team Brain → select the shared folder → work normally → ask questions normally.
 
-## Quick start — run the synthetic proof
+## Quick start
 
 Requirements:
 
@@ -115,66 +109,68 @@ npm test
 npm run poc
 ```
 
-The POC uses synthetic data only. It proves the Employee X → Employee Y institutional-memory loop, authority handling, provenance, permission filtering, relationship context, and governed AI knowledge contribution.
+The local POC uses synthetic data only. It proves the Employee X → Employee Y institutional-memory loop, authority handling, provenance, permission filtering, relationship context, and governed AI knowledge contribution.
 
-No employer/customer/proprietary content is required.
+## Try it with your team
 
-## Adoption paths
+Collective Brain now includes a reusable pilot package under `examples/pilot/`.
 
-### 1. Local POC
+Start with:
 
-Run the synthetic test suite and inspect the architecture. This is the fastest way to understand the model before connecting company storage.
+- `examples/pilot/README.md` — pilot instructions
+- `examples/pilot/SCORECARD.md` — reusable evaluation scorecard
+- `examples/pilot/PILOT_CONTENT_PLAN.md` — safe synthetic test content
+- `examples/pilot/CLAUDE_VALIDATION_PROMPT.md` — operator prompt for a real-folder test
 
-### 2. Team pilot
+Recommended progression:
 
-Use a real shared OneDrive/SharePoint or Box folder with **synthetic or non-sensitive pilot content**. Test Create Brain, Join Existing Brain, retrieval without filename hints, revision updates, permission changes, tombstones, advisory-only behavior, and freshness.
+### 1. Local proof
 
-### 3. Real company deployment
+Run the synthetic test suite and inspect the architecture.
 
-Deploy the hosted Brain service, configure approved read-only connectors, connect Claude, and validate identity/ACL behavior in the organization's real environment before using sensitive or controlled information.
+### 2. Real-folder team pilot
 
-See `docs/ADOPTING_COLLECTIVE_BRAIN.md` for the adoption checklist.
+Use a real OneDrive/SharePoint or Box folder with synthetic or non-sensitive pilot content. Test Create Brain, Join Existing Brain, retrieval without filename hints, revisions, permissions, freshness, tombstones, and advisory-only behavior.
+
+### 3. Production-candidate evaluation
+
+Only after a successful pilot, validate real identity/ACL behavior, hosted integration, governance, auditability, security controls, and production deployment in your organization's own environment.
+
+See `docs/ADOPTING_COLLECTIVE_BRAIN.md` for the full adoption guide.
 
 ## The Brain is folder-rooted
 
 A Collective Brain is anchored to a selected shared cloud folder.
 
-The Brain identity is based on the cloud provider and provider-native folder/root ID, not the human-readable folder name. A folder can therefore be renamed without creating a new Brain as long as the provider preserves its native ID.
+Its identity is based on the cloud provider plus the provider-native folder/root ID — not the human-readable folder name. Renaming the folder does not create a new Brain if the provider preserves that native ID.
 
 Content outside the selected root is not part of that Brain. Source permissions remain authoritative.
 
 ### Employee A — Create Brain
 
-1. Open Claude and enable Collective Brain.
+1. Open the AI assistant and connect Collective Brain.
 2. Choose **Create Brain**.
 3. Choose OneDrive/SharePoint or Box.
-4. Create or select the shared folder that will hold the Brain.
-5. Confirm the selected folder.
+4. Create or select the shared team folder.
+5. Confirm the folder.
 6. Collective Brain records the provider-native root identity.
-7. Share the folder using the company's normal cloud-storage controls.
-8. Work normally and save useful team artifacts under that folder.
-
-Full guide: `docs/EMPLOYEE_A_CREATE_BRAIN.md`.
+7. Share the folder using normal company controls.
+8. Keep working normally.
 
 ### Employee B — Join Existing Brain
 
-1. Get normal source access to the existing Brain folder.
-2. Open Claude and enable Collective Brain.
+1. Receive normal source access to the existing Brain folder.
+2. Connect Collective Brain.
 3. Choose **Join Existing Brain**.
-4. Choose the same provider.
-5. Select the same shared Brain folder.
-6. Collective Brain resolves the provider + native root ID and joins the existing workspace.
-7. Ask Claude normal work questions.
+4. Select the same provider and exact shared folder.
+5. Collective Brain resolves the existing workspace.
+6. Ask normal work questions.
 
-Joining a Brain does **not** grant access to source content. Employee B can retrieve only what the underlying storage system already permits.
+Joining a Brain does **not** grant access to source content. Employees can retrieve only what the underlying storage system already permits.
 
-Full guide: `docs/EMPLOYEE_B_JOIN_BRAIN.md`.
+## Example questions
 
-## Using Collective Brain with Claude
-
-Employees should normally speak to Claude naturally. They should not need special command syntax.
-
-Examples:
+Employees should not need special syntax.
 
 - “What guidance do we already have for this?”
 - “Has anyone documented how we handle this situation?”
@@ -185,7 +181,7 @@ Examples:
 - “What sources are you using?”
 - “Show me related work.”
 
-Employees may also explicitly say:
+Explicit Brain actions can also include:
 
 - “Search the Brain for …”
 - “Show me the source.”
@@ -194,20 +190,18 @@ Employees may also explicitly say:
 
 The last action creates a **pending knowledge proposal**. AI-generated knowledge does not become authoritative automatically.
 
-Full guide: `docs/USING_COLLECTIVE_BRAIN.md`.
-
 ## Core capabilities
 
-1. **Shared knowledge ingestion** — ingest approved cloud-folder content and extract searchable text/metadata.
-2. **Semantic retrieval** — find relevant knowledge without knowing filenames or exact terminology.
-3. **Relationship graph** — map artifacts, concepts, decisions, people, programs, procedures, revisions, lessons learned, and evidence.
-4. **Trust and authority** — distinguish controlled requirements, procedures, approved decisions, examples, training, working material, and AI inference.
-5. **Permissions-aware retrieval** — unauthorized information is excluded before model context.
-6. **Provenance** — answers preserve source artifact, revision/version, location, and relationship context where available.
-7. **Snapshot freshness** — evidence records when it was read and whether it should be refreshed before consequential use.
-8. **Advisory-only behavior** — source-owned employee files are read-only; AI recommends or proposes rather than silently editing employee work.
+1. **Shared knowledge ingestion** — ingest approved shared-folder content and extract searchable text/metadata.
+2. **Retrieval without filename knowledge** — find useful prior work using normal questions.
+3. **Relationship graph** — connect artifacts, concepts, decisions, people, programs, procedures, revisions, lessons learned, and evidence.
+4. **Authority and trust** — distinguish controlled guidance, decisions, examples, training, working material, and AI inference.
+5. **Permission-aware retrieval** — unauthorized information is excluded before model context.
+6. **Provenance** — preserve source artifact, revision/version, location, and relationship context where available.
+7. **Snapshot freshness** — record when evidence was read and refresh or warn when stale evidence matters.
+8. **Advisory-only behavior** — employee-owned source files are read-only by default.
 9. **Human-governed contribution** — AI-created reusable knowledge begins as pending review.
-10. **AI-agnostic architecture** — Claude is the first client; the Brain belongs to the organization.
+10. **AI-agnostic architecture** — Claude is the first client, not the owner of the Brain.
 
 ## Architecture
 
@@ -225,7 +219,7 @@ Normalize + provenance + freshness
       +----+----+
       |         |
       v         v
- Retrieval   Graphify
+ Retrieval   Relationship Graph
       |         |
       +----+----+
            v
@@ -235,7 +229,7 @@ Permissions + authority + revision policy
  Collective Brain tool contract
            |
            v
-      Claude Skill
+      AI assistant
            |
            v
         Employee
@@ -243,34 +237,17 @@ Permissions + authority + revision policy
 
 ## Security and trust model
 
-Collective Brain is designed around several non-negotiable rules:
+Collective Brain is designed around non-negotiable rules:
 
 - source ACLs are authoritative
-- permission filtering occurs before model context
+- permission filtering happens before model context
 - joining a Brain never broadens source permissions
 - source-owned files are read-only by default
 - AI-generated knowledge is non-authoritative until human promotion
 - evidence carries revision/version/provenance and freshness context
-- stale or conflicting evidence must be surfaced rather than silently blended
-- restricted titles, snippets, counts, and graph relationships must not leak to unauthorized users
+- stale or conflicting evidence is surfaced instead of silently blended
+- restricted titles, snippets, counts, and graph relationships must not leak
 - licensed or controlled content requires organization-approved handling
-
-See `docs/KNOWLEDGE_MODEL.md`, `docs/LOW_ACCESS_ENTERPRISE.md`, and the trust/governance backlog for details.
-
-## Knowledge authority model
-
-Default precedence:
-
-1. Released requirement / controlled standard metadata
-2. Released internal procedure or work instruction
-3. Approved decision
-4. Approved exemplar / precedent
-5. Approved training material
-6. Working document
-7. Personal/team note
-8. AI-generated inference
-
-Lower-authority material must never be silently represented as a higher-authority requirement.
 
 ## Current maturity
 
@@ -282,7 +259,7 @@ Collective Brain is currently **pilot-stage open source**, not a finished produc
 - folder-root workspace identity
 - permission pre-filtering
 - authority/revision behavior
-- Graphify-style relationship traversal
+- relationship traversal
 - pending-review AI contributions
 - Create Brain / Join Existing Brain product logic
 - advisory-only source boundaries
@@ -290,17 +267,35 @@ Collective Brain is currently **pilot-stage open source**, not a finished produc
 
 ### Requires environment-specific live validation
 
-- production OneDrive/SharePoint tenant behavior
-- production Box tenant behavior
+- production OneDrive/SharePoint behavior
+- production Box behavior
 - real identity/ACL revocation behavior
-- hosted Claude integration in each target environment
+- hosted AI integration in the target environment
 - real shared-folder Employee X → Employee Y handoff
 
-Do not treat mocked or synthetic validation as proof of production readiness in your organization.
+Do not treat synthetic validation as proof of production readiness in your organization.
+
+## Open source + commercial adoption
+
+Collective Brain is open source under the **Apache License 2.0**. Teams are free to adopt, modify, and deploy it themselves under that license.
+
+The project is maintained by **Lemery**. Organizations that want help can engage the maintainers for work such as:
+
+- pilot design and rollout
+- OneDrive/SharePoint or Box integration
+- identity and permission mapping
+- governance and authority-model design
+- security and trust validation
+- custom workflows and domain schemas
+- AI-assistant integration
+- employee onboarding and training
+- production hardening and deployment support
+
+The open-source project is the foundation; implementation and organizational adoption can be tailored to each team's environment.
 
 ## Multi-team direction
 
-A company can eventually have multiple connected Brains rather than forcing every employee into one unrestricted knowledge pool:
+A company can eventually have multiple connected Brains rather than one unrestricted knowledge pool:
 
 ```text
 Company Collective Brain
@@ -311,46 +306,30 @@ Company Collective Brain
 └── Program B Brain
 ```
 
-Graph relationships can connect knowledge across those Brains only where the requesting employee's source permissions allow it.
+Cross-Brain relationships should only be visible where the requesting employee's source permissions allow them.
 
 ## Repository map
 
-- `src/brain.mjs` — retrieval, graph, authority, provenance, and proposal behavior
-- `src/tools.mjs` — vendor-neutral Brain tool contract
-- `src/connectors/` — OneDrive/SharePoint + Box connector abstractions/implementations
-- `data/corpus.json` — synthetic engineering proof corpus
+- `src/` — Brain, connector, policy, onboarding, and hosted tool logic
 - `tests/` — automated institutional-memory and safety coverage
+- `data/corpus.json` — synthetic proof corpus
 - `scripts/run-poc.mjs` — repeatable synthetic proof runner
 - `skills/claude/SKILL_SPEC.md` — Claude behavior contract
-- `docs/ADOPTING_COLLECTIVE_BRAIN.md` — adoption guide for another team/company
-- `docs/EMPLOYEE_A_CREATE_BRAIN.md` — first employee / creator setup
-- `docs/EMPLOYEE_B_JOIN_BRAIN.md` — additional employee setup
-- `docs/USING_COLLECTIVE_BRAIN.md` — normal employee usage
-- `docs/ARCHITECTURE.md` — system architecture
-- `docs/KNOWLEDGE_MODEL.md` — authority/knowledge model
-- `docs/LOW_ACCESS_ENTERPRISE.md` — constrained-company operating model
-- `docs/CONNECTORS.md` — cloud-source connector requirements
-- `docs/TOOL_CONTRACT.md` — AI-facing tool contract
+- `docs/ADOPTING_COLLECTIVE_BRAIN.md` — adopter guide
+- `examples/pilot/` — reusable pilot package
+- `.github/ISSUE_TEMPLATE/` — bug and adopter feedback intake
 - `CONTRIBUTING.md` — contribution guidelines
 - `LICENSE` — Apache License 2.0
 
-## Roadmap
+## Contributing and feedback
 
-### P0 — Prove shared memory
-Synthetic Employee X → Employee Y institutional-memory proof.
+Contributions are welcome. Start with `CONTRIBUTING.md` and existing GitHub issues.
 
-### P1 — Make the folder-rooted experience real
-Production cloud ingestion, incremental sync, identity/ACL mapping, Create/Join Brain, zero-install Claude usage, and real tenant validation.
+If you test Collective Brain with a team:
 
-### P2 — Make it trustworthy at scale
-Authority, provenance, freshness, conflict detection, audit trail, human promotion, aging/revalidation, and reviewer ownership.
-
-### P3 — Scale across teams
-Multiple Brains/domains, cross-team graph relationships with permission boundaries, expert discovery, graph exploration, administration, and additional AI clients.
-
-## Contributing
-
-Contributions are welcome. Start with `CONTRIBUTING.md` and existing GitHub issues. Please preserve the core product invariants around source permissions, read-only source behavior, provenance, freshness, and human authority.
+- use the **Adopter feedback** issue template for pilot lessons and usability friction
+- use the **Bug report** template for reproducible defects
+- never include proprietary, regulated, customer, or confidential information in public issues
 
 ## License
 
