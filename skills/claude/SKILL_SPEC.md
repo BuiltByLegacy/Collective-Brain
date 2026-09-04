@@ -3,6 +3,17 @@
 ## Purpose
 Claude is the first conversational interface to Collective Brain. Ordinary employees should be able to use the system with only Claude plus access to approved OneDrive/SharePoint or Box folders. No employee-side GitHub, database, Obsidian, local agent, browser extension, or developer tooling is required.
 
+## First-run setup
+The skill is folder-rooted.
+
+Claude should offer two paths:
+1. **Create Brain** — the first employee/admin creates or selects a shared OneDrive/SharePoint or Box folder and registers that provider-native folder ID as the brain root.
+2. **Join Existing Brain** — another employee selects the same shared folder. Matching provider + root ID joins the same Collective Brain workspace.
+
+The folder display name is not the brain identity. The provider-native root ID is. Claude should not ask ordinary employees for API keys, database URLs, GitHub repositories, CLI commands, or OAuth application registration.
+
+If the employee cannot access the selected shared folder using their normal company identity, setup must fail safely rather than requesting another employee's credentials.
+
 ## Core behavior
 When an employee asks an engineering or organizational question that could benefit from institutional knowledge, Claude should query Collective Brain before answering from general model knowledge.
 
@@ -26,12 +37,13 @@ Claude must:
 6. Never reveal artifacts, titles, graph relationships, counts, or snippets excluded by Collective Brain permissions.
 7. Treat licensed-standard metadata as a pointer to the company's authorized source unless the organization has explicitly approved deeper indexing.
 8. If no authorized institutional evidence exists, say so rather than inventing company guidance.
+9. Never retrieve content outside the selected brain root unless an authorized administrator explicitly adds another root later.
 
 ## Contribution behavior
-Employees contribute primarily by doing normal work and saving it in approved OneDrive/SharePoint or Box locations. Claude may propose a reusable lesson, decision, clarification, or relationship using `brain_propose_knowledge`, but AI-created knowledge begins as `pending_review` and cannot become authoritative without an explicit human review action.
+Employees contribute primarily by doing normal work and saving it under the selected shared OneDrive/SharePoint or Box root. Claude may propose a reusable lesson, decision, clarification, or relationship using `brain_propose_knowledge`, but AI-created knowledge begins as `pending_review` and cannot become authoritative without an explicit human review action.
 
 ## Employee X -> Employee Y proof
-Employee X creates a seed-part artifact and saves it to an approved shared folder. Collective Brain indexes the artifact and relationships. Employee Y later asks Claude a related question without knowing the filename. Claude retrieves the authorized evidence, applies graph context, and answers with provenance and the correct authority classification.
+Employee X creates a seed-part artifact and saves it under the registered shared brain folder. Collective Brain indexes the artifact and relationships. Employee Y joins the same folder-rooted brain, later asks Claude a related question without knowing the filename, and receives authorized evidence with graph context, provenance, revision, and correct authority classification.
 
 ## Low-access enterprise rule
 The skill must not assume that the employee can:
@@ -46,7 +58,7 @@ The skill must not assume that the employee can:
 Any setup requiring those capabilities belongs to a central administrator/service deployment, not the employee workflow.
 
 ## Safety rule
-Unauthorized knowledge must be removed before the model context is built. Source ACLs are authoritative; Collective Brain may narrow access but must never broaden it.
+Unauthorized knowledge must be removed before the model context is built. Source ACLs are authoritative; Collective Brain may narrow access but must never broaden it. Selecting the same brain folder does not grant access to source artifacts the employee cannot otherwise access.
 
 ## Vendor independence
-Business logic does not live exclusively in Claude prompts. Authority ranking, permission filtering, revision resolution, graph traversal policy, and provenance belong in Collective Brain so other AI clients can use the same institutional memory later.
+Business logic does not live exclusively in Claude prompts. Authority ranking, permission filtering, revision resolution, graph traversal policy, folder-root enforcement, and provenance belong in Collective Brain so other AI clients can use the same institutional memory later.
