@@ -1,92 +1,52 @@
 # Claude Skill Specification
 
-## Objective
+## Purpose
+Claude is the first conversational interface to Collective Brain. Ordinary employees should be able to use the system with only Claude plus access to approved OneDrive/SharePoint or Box folders. No employee-side GitHub, database, Obsidian, local agent, browser extension, or developer tooling is required.
 
-Make Claude a safe client of Collective Brain. Claude should automatically use institutional memory when it can materially improve an answer, while preserving authority, access control, revision, and provenance.
+## Core behavior
+When an employee asks an engineering or organizational question that could benefit from institutional knowledge, Claude should query Collective Brain before answering from general model knowledge.
 
-## Required behavior
+Claude should use the vendor-neutral Brain tools rather than directly browsing raw storage whenever the Brain service is available:
+- `brain_search`
+- `brain_get_evidence`
+- `brain_find_related`
+- `brain_find_path`
+- `brain_resolve_current`
+- `brain_compare_authority`
+- `brain_find_conflicts`
+- `brain_propose_knowledge`
 
-When an employee asks an organizational knowledge question:
+## Grounding contract
+Claude must:
+1. Prefer current, applicable, higher-authority evidence.
+2. Preserve source artifact, revision, and source location in the answer.
+3. Distinguish requirement/reference, approved practice, precedent/example, and supporting context.
+4. State when retrieved sources conflict or are superseded.
+5. Never treat an exemplar, training deck, working note, or model inference as a released requirement.
+6. Never reveal artifacts, titles, graph relationships, counts, or snippets excluded by Collective Brain permissions.
+7. Treat licensed-standard metadata as a pointer to the company's authorized source unless the organization has explicitly approved deeper indexing.
+8. If no authorized institutional evidence exists, say so rather than inventing company guidance.
 
-1. Determine whether Collective Brain could materially improve the answer.
-2. Query Collective Brain rather than relying only on model memory.
-3. Use both content retrieval and relationship context when useful.
-4. Apply employee identity/entitlement context before evidence reaches the model.
-5. Prefer current, applicable, higher-authority sources.
-6. Check for supersession and conflicts.
-7. Distinguish requirement vs company practice vs precedent/example vs inference.
-8. Cite the source artifact and source location.
-9. Say when evidence is incomplete or conflicting.
-10. Propose reusable new knowledge for review rather than silently modifying authoritative content.
+## Contribution behavior
+Employees contribute primarily by doing normal work and saving it in approved OneDrive/SharePoint or Box locations. Claude may propose a reusable lesson, decision, clarification, or relationship using `brain_propose_knowledge`, but AI-created knowledge begins as `pending_review` and cannot become authoritative without an explicit human review action.
 
-## Proposed Brain tools
+## Employee X -> Employee Y proof
+Employee X creates a seed-part artifact and saves it to an approved shared folder. Collective Brain indexes the artifact and relationships. Employee Y later asks Claude a related question without knowing the filename. Claude retrieves the authorized evidence, applies graph context, and answers with provenance and the correct authority classification.
 
-### `brain_search`
-Find permission-filtered evidence by semantic/lexical relevance.
+## Low-access enterprise rule
+The skill must not assume that the employee can:
+- install software,
+- register OAuth applications,
+- access a database,
+- use GitHub,
+- run command-line tools,
+- administer OneDrive/SharePoint or Box,
+- maintain a separate knowledge-base application.
 
-Inputs should include:
-- query
-- requester identity/context
-- optional artifact/domain/program filters
-- result limit
-
-Returns:
-- evidence IDs
-- safe metadata
-- source locations
-- authority class
-- revision/current status
-- relevance/confidence
-
-### `brain_get_evidence`
-Fetch a specific permission-approved source excerpt and provenance record.
-
-### `brain_find_related`
-Return permission-filtered graph neighbors and typed relationships.
-
-### `brain_find_path`
-Find a safe relationship path between two concepts/artifacts.
-
-### `brain_resolve_current`
-Resolve the current applicable revision for a logical artifact within a scope.
-
-### `brain_compare_authority`
-Compare candidate evidence using authority, applicability, revision, conflict status, and review status.
-
-### `brain_find_conflicts`
-Identify contradictory or superseded guidance around a concept.
-
-### `brain_propose_knowledge`
-Create a pending knowledge proposal linked to its supporting evidence.
-
-## Answer contract
-
-A grounded answer should expose, in a user-friendly way:
-- the conclusion,
-- whether it is a requirement / approved practice / precedent / inference,
-- source artifact(s),
-- revision(s),
-- source location(s),
-- conflict or freshness warnings where applicable.
-
-## Example
-
-Employee asks:
-
-> How are we handling datum targets on weldment seed parts?
-
-Expected behavior:
-- retrieve the current approved weldment seed-part exemplar,
-- traverse its relationship to the relevant datum-target concept and decision,
-- verify current revision,
-- identify whether the external-standard reference is a requirement source or only contextual metadata,
-- answer that the approach is an approved company exemplar unless a higher-authority procedure explicitly requires it,
-- cite the supporting slides/sections.
+Any setup requiring those capabilities belongs to a central administrator/service deployment, not the employee workflow.
 
 ## Safety rule
-
-Claude must not reveal inaccessible knowledge indirectly. If a graph traversal encounters a restricted node, the restricted node and relationships derived solely from it must be omitted before model context construction.
+Unauthorized knowledge must be removed before the model context is built. Source ACLs are authoritative; Collective Brain may narrow access but must never broaden it.
 
 ## Vendor independence
-
-Do not put business logic exclusively in the Claude prompt. Authority ranking, permission filtering, revision resolution, and provenance should live in Collective Brain services/policies so other AI clients can use the same rules later.
+Business logic does not live exclusively in Claude prompts. Authority ranking, permission filtering, revision resolution, graph traversal policy, and provenance belong in Collective Brain so other AI clients can use the same institutional memory later.
