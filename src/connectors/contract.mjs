@@ -2,6 +2,7 @@ export const connectorContract = {
   requiredMethods:['listChanges','getArtifact','getPermissions','getRevision','getSourceLocation'],
   invariants:[
     'read-only source access by default',
+    'a selected folder root defines the brain workspace boundary',
     'preserve source-native ids and revisions',
     'preserve and never broaden source permissions',
     'support incremental change cursors where source allows',
@@ -10,14 +11,21 @@ export const connectorContract = {
   ]
 };
 
-export function normalizeSourceArtifact({provider,sourceId,name,revision,mimeType,webUrl,modifiedAt,permissions,content,locations=[]}) {
-  if(!provider || !sourceId || !name) throw new Error('provider, sourceId, and name are required');
-  return {provider,sourceId,name,revision:revision??null,mimeType:mimeType??null,webUrl:webUrl??null,modifiedAt:modifiedAt??null,permissions:permissions??[],content:content??'',locations};
+export function normalizeSourceArtifact({provider,sourceId,name,revision,mimeType,webUrl,modifiedAt,permissions,content,locations=[],rootId}) {
+  if(!provider || !sourceId || !name || !rootId) throw new Error('provider, sourceId, name, and rootId are required');
+  return {provider,sourceId,rootId,name,revision:revision??null,mimeType:mimeType??null,webUrl:webUrl??null,modifiedAt:modifiedAt??null,permissions:permissions??[],content:content??'',locations};
 }
 
-// Production adapters implement the same contract using company-approved credentials.
+export function assertConnectorShape(connector){
+  for(const method of connectorContract.requiredMethods){
+    if(typeof connector?.[method] !== 'function') throw new Error(`Connector missing ${method}`);
+  }
+  return true;
+}
+
+// Lightweight delegation wrappers remain available for centrally managed clients.
 export class OneDriveSharePointConnector {
-  constructor(client){this.client=client;}
+  constructor(client){this.client=client; assertConnectorShape(client);}
   listChanges(...args){return this.client.listChanges(...args);}
   getArtifact(...args){return this.client.getArtifact(...args);}
   getPermissions(...args){return this.client.getPermissions(...args);}
@@ -26,7 +34,7 @@ export class OneDriveSharePointConnector {
 }
 
 export class BoxConnector {
-  constructor(client){this.client=client;}
+  constructor(client){this.client=client; assertConnectorShape(client);}
   listChanges(...args){return this.client.listChanges(...args);}
   getArtifact(...args){return this.client.getArtifact(...args);}
   getPermissions(...args){return this.client.getPermissions(...args);}
