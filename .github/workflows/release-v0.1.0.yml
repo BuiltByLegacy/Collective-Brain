@@ -1,0 +1,33 @@
+name: Publish v0.1.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/releases/v0.1.0.trigger
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm test
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v0.1.0 >/dev/null 2>&1; then
+            echo "v0.1.0 already exists; nothing to do."
+          else
+            gh release create v0.1.0 \
+              --target "${GITHUB_SHA}" \
+              --title "Collective Brain v0.1.0 — Public Pilot" \
+              --notes-file docs/releases/v0.1.0.md
+          fi
