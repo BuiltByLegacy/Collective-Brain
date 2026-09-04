@@ -1,0 +1,83 @@
+name: Adopter feedback
+description: Share pilot results, usability friction, or adoption lessons
+title: "[Adopter feedback]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing Collective Brain. Please use synthetic or sanitized examples only.
+  - type: input
+    id: team
+    attributes:
+      label: Team type
+      description: Example: 8-person product team, manufacturing engineering group, consulting team.
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Adoption stage
+      options:
+        - Local synthetic POC
+        - Real-folder team pilot with synthetic/non-sensitive content
+        - Production-candidate evaluation
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Storage provider
+      options:
+        - OneDrive / SharePoint
+        - Box
+        - Mixed / multiple
+        - Not connected yet
+        - Other
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What did Collective Brain help your team do?
+      description: Describe the most valuable moment or use case.
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Biggest friction
+      description: What felt confusing, technical, slow, or unnecessary?
+    validations:
+      required: true
+  - type: textarea
+    id: missing
+    attributes:
+      label: What would make you keep using it?
+      description: Missing capability, deployment help, integration, governance, training, or UX.
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup experience
+      description: Which steps required an admin/developer, and which could normal employees complete themselves?
+  - type: dropdown
+    id: continue
+    attributes:
+      label: Would your team continue using Collective Brain if deployment/setup were handled?
+      options:
+        - Yes
+        - Probably
+        - Unsure
+        - Probably not
+        - No
+    validations:
+      required: true
+  - type: textarea
+    id: trust
+    attributes:
+      label: Trust/security observations
+      description: Any concern involving permissions, stale information, source editing, authority, or leakage.
+  - type: checkboxes
+    id: safe
+    attributes:
+      label: Data safety
+      options:
+        - label: This feedback contains no proprietary, confidential, regulated, or customer-sensitive information.
+          required: true
