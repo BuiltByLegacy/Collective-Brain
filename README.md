@@ -1,8 +1,8 @@
 # Collective Brain
 
-**AI-native institutional memory for teams.**
+**AI-native shared institutional memory for organizations.**
 
-Collective Brain combines shared knowledge storage, semantic retrieval, Graphify-style relationship mapping, and AI access so every employee can contribute to—and benefit from—the organization's accumulated knowledge.
+Collective Brain combines shared cloud knowledge, semantic retrieval, Graphify-style relationship mapping, permission-aware retrieval, provenance, and AI access so knowledge created by one employee can safely help another employee later.
 
 Engineering is the first implementation domain, but the platform is intentionally domain-agnostic.
 
@@ -13,6 +13,18 @@ Teams already create valuable knowledge in PowerPoint, Word, Excel, PDFs, proced
 The initial proof is simple:
 
 > Employee X saves a synthetic engineering seed-part deck. Two weeks later Employee Y starts a separate Claude session, asks a related question, and receives the correct answer with source, revision, authority level, and relationship context.
+
+## Designed for constrained companies
+
+A normal employee may have access to only:
+- Claude
+- OneDrive / SharePoint
+- Box
+- ordinary Office files
+
+That is enough for the intended employee workflow. Employees do **not** need GitHub, Obsidian, a database, command-line tools, browser extensions, or a separate knowledge-base application.
+
+Employees contribute by doing their normal work and saving it where the company already stores work. Central infrastructure handles indexing, Graphify relationships, permissions, revision resolution, and Claude tool access.
 
 ## Core capabilities
 
@@ -28,31 +40,28 @@ The initial proof is simple:
 ## Architecture
 
 ```text
-Shared Cloud Storage
-  PowerPoint / Word / Excel / PDF / notes / approved metadata
-                |
-                v
-          Ingestion Layer
-      extract / normalize / chunk
-                |
-      +---------+----------+
-      |                    |
-      v                    v
-Semantic Index        Relationship Graph
-"what is relevant?"   "how is it connected?"
-      |                    |
-      +---------+----------+
-                v
-       Trust + Permission Layer
-                |
-                v
-          Collective Brain API
-                |
-                v
-          Claude Skill / AI
-                |
-                v
-           Employee question
+OneDrive / SharePoint / Box
+           |
+           v
+   Read-only connectors
+           |
+           v
+Normalize + provenance
+           |
+      +----+----+
+      |         |
+      v         v
+ Retrieval   Graphify
+      |         |
+      +----+----+
+           v
+ Permissions + authority + revision policy
+           |
+           v
+ Collective Brain tool contract
+           |
+           v
+         Claude
 ```
 
 ## Knowledge authority model
@@ -70,33 +79,11 @@ Default precedence:
 
 Lower-authority knowledge must never be silently represented as a higher-authority requirement.
 
-## Knowledge lifecycle
-
-```text
-Artifact or conversation
-        |
-        v
-   Extract / discover
-        |
-        v
-   Proposed knowledge
-        |
-        v
-     Human review
-        |
-        v
- Approved / rejected
-        |
-        v
- Search + graph update
-```
-
 ## V0 milestone: Institutional Memory Proof — Employee X → Employee Y
 
 V0 uses synthetic engineering data only.
 
 Acceptance criteria:
-
 - Employee X adds a synthetic seed-part artifact.
 - Collective Brain extracts content and metadata.
 - Relevant concepts and relationships are represented in the graph.
@@ -108,17 +95,27 @@ Acceptance criteria:
 - A restricted artifact is not returned to an unauthorized test identity.
 - New AI-derived knowledge is proposed for review rather than silently becoming authoritative.
 
-## Repository structure
+Run the proof with:
 
-```text
-/docs                 Product, architecture, governance, and schemas
-/brain                Synthetic POC knowledge corpus
-/graph                Relationship model and Graphify integration
-/ingestion            Artifact extraction and normalization
-/retrieval            Semantic and hybrid retrieval
-/skills/claude        Claude skill specification and prompts
-/tests                End-to-end institutional-memory tests
+```bash
+npm test
+npm run poc
 ```
+
+## Repository map
+- `src/brain.mjs` — V0 retrieval, graph, policy, provenance, and proposal behavior
+- `src/tools.mjs` — vendor-neutral Brain tool contract
+- `src/connectors/contract.mjs` — OneDrive/SharePoint + Box connector interface
+- `data/corpus.json` — synthetic engineering proof corpus
+- `tests/` — Employee X -> Employee Y acceptance coverage
+- `scripts/run-poc.mjs` — repeatable proof runner
+- `skills/claude/SKILL_SPEC.md` — Claude behavior contract
+- `docs/ARCHITECTURE.md` — system architecture
+- `docs/KNOWLEDGE_MODEL.md` — authority/knowledge model
+- `docs/LOW_ACCESS_ENTERPRISE.md` — constrained-company operating model
+- `docs/CONNECTORS.md` — cloud-source connector requirements
+- `docs/TOOL_CONTRACT.md` — AI-facing tool contract
+- `docs/V0_STATUS.md` — implemented/deferred boundary
 
 ## Roadmap
 
@@ -129,19 +126,10 @@ Build the synthetic Employee X → Employee Y end-to-end proof.
 Authority, provenance, revision handling, conflict detection, permissions, audit trail, and human promotion workflow.
 
 ### P2 — Connect enterprise storage
-Approved SharePoint/OneDrive or equivalent ingestion, incremental sync, identity, and ACL mapping.
+Production OneDrive/SharePoint + Box ingestion, incremental sync, identity, ACL mapping, and a Claude-only employee experience.
 
 ### P3 — Scale across teams
 Multiple domains, expert discovery, aging knowledge, contradiction detection, graph exploration, administration, and additional AI clients.
-
-## Non-goals for V0
-
-- Building a full Obsidian replacement UI
-- Ingesting confidential company data
-- Letting AI directly overwrite controlled engineering requirements
-- Replacing PLM/PDM/document-control systems
-- Reproducing licensed standards outside their permitted access controls
-- Building a large autonomous multi-agent platform before the core memory handoff works
 
 ## Guiding principle
 
