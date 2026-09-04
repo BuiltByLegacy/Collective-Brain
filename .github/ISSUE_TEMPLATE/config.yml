@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Adoption guide
+    url: https://github.com/BuiltByLegacy/Collective-Brain/blob/main/docs/ADOPTING_COLLECTIVE_BRAIN.md
+    about: Start here if you are evaluating Collective Brain for your team.
