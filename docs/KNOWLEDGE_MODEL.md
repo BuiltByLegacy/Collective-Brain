@@ -8,7 +8,27 @@ A core design rule is:
 
 > Files are evidence. Evidence supports knowledge. Governing references define rules. The Brain must not confuse document volume with truth.
 
-At scale, many documents may repeat, partially duplicate, supersede, contradict, or reinterpret the same underlying knowledge. Collective Brain therefore models artifacts, evidence, knowledge concepts, and governing references separately.
+At scale, many documents may repeat, partially duplicate, supersede, contradict, or reinterpret the same underlying knowledge. Collective Brain therefore models artifacts, evidence, knowledge concepts, governing references, and memory behavior separately.
+
+## Implemented governed-knowledge runtime
+
+The Core implementation now lives in `src/governed-knowledge.mjs` and is exercised by `tests/governed-knowledge.test.mjs`.
+
+Implemented contracts include:
+- provider-neutral source manifests with provider-native ID, version, canonical URL, hash, location, timestamps, ACL reference, state, and scope;
+- SharePoint/OneDrive and Box normalized artifacts mapped into the same manifest contract;
+- permission-safe source-open actions;
+- exact duplicate, revision, near-duplicate/variant, and overlapping-knowledge classification;
+- document families that preserve every source identity rather than merging ACLs;
+- `KnowledgeConcept` synthesis where authority/applicability/current status beat mention count;
+- explicit unresolved conflicts when equally authoritative current applicable evidence disagrees;
+- governing-reference recall by applicability, effective time, mandatory/advisory state, authority, and ACL rather than ordinary similarity ranking;
+- historical governing-reference queries;
+- accountable reviewer/SME routing with reviewer authorization and auditable resolution;
+- queue/backpressure, ACL-priority work, idempotency, retries, dead-letter/quarantine, unchanged-content short circuit, health metrics, and deterministic classifier/pipeline versions;
+- semantic / episodic / procedural / evidence-only ingestion classification.
+
+The runtime does not claim that synthetic tests replace live tenant/provider validation. Provider production validation remains governed by the connector issues and live-proof gates.
 
 ## Artifact metadata
 
@@ -157,13 +177,12 @@ Effective windows should be modeled explicitly where available.
 ## Duplicate, revision, and variant handling
 
 High-volume ingestion must distinguish:
-
 - **Exact duplicate** — same content/hash or provider copy; avoid treating copies as independent truth.
 - **Revision** — same logical artifact/document family with a newer source revision/version; preserve history and explicit supersession.
 - **Near duplicate / variant** — substantially similar content with different owner, scope, or edits; link as `POSSIBLE_VARIANT_OF` or `POSSIBLE_DUPLICATE_OF` rather than silently merging.
 - **Same concept, different wording** — separate evidence statements may support one `KnowledgeConcept`.
 
-Possible duplicates/variants should preserve all source identities and permissions. Destructive merging requires a governed decision.
+Possible duplicates/variants preserve all source identities and permissions. Destructive merging requires a governed decision.
 
 ## Knowledge concepts and evidence
 
@@ -187,13 +206,7 @@ A concept's confidence/authority comes from its governed evidence and approval s
 
 Conflicting evidence must never be silently blended or averaged.
 
-When two statements differ, Collective Brain should first test whether the difference is explained by:
-- authority,
-- revision/supersession,
-- applicability/scope,
-- effective date,
-- program/product/customer/material/jurisdiction,
-- approval state.
+When two statements differ, Collective Brain first tests whether the difference is explained by authority, revision/supersession, applicability/scope, effective date, program/product/customer/material/jurisdiction, or approval state.
 
 If equally applicable/current authoritative evidence still conflicts, represent an unresolved conflict, disclose it in retrieval, and route it for human review.
 
@@ -201,94 +214,27 @@ Minimum relationships include `CONFLICTS_WITH`, `SUPERSEDES`, `CURRENT_FOR`, `AP
 
 ## Relationship model
 
-Each relationship should include:
-
-```yaml
-from: SP-WELDMENT-001-B
-type: DEMONSTRATES
-to: CONCEPT-DATUM-TARGET-PATTERN-03
-provenance:
-  source_artifact: SP-WELDMENT-001-B
-  source_location: slide:14-17
-assertion_type: explicit
-confidence: 1.0
-review_status: source-derived
-```
-
-`assertion_type` values should distinguish at least:
-- `explicit` — directly represented in controlled/source data
-- `extracted` — machine-extracted from source content
-- `inferred` — AI/model inference
-- `human_approved` — reviewed/approved relationship
-
-Additional scale-oriented relationships may include:
-- `HAS_REVISION`
-- `POSSIBLE_DUPLICATE_OF`
-- `POSSIBLE_VARIANT_OF`
-- `SUPPORTS`
-- `INTERPRETS`
-- `GOVERNS`
-- `CURRENT_FOR`
+Each relationship should preserve provenance and assertion type. Additional scale-oriented relationships may include `HAS_REVISION`, `POSSIBLE_DUPLICATE_OF`, `POSSIBLE_VARIANT_OF`, `SUPPORTS`, `INTERPRETS`, `GOVERNS`, and `CURRENT_FOR`.
 
 ## Revision and supersession
 
-Do not model revisions as simple mutable attributes on one node if that destroys history. The system should be able to answer both:
-- What is current?
-- What did Revision A say when it was active?
-
-Recommended pattern:
-
-```text
-Artifact: SP-WELDMENT-001
-  HAS_REVISION -> Rev A
-  HAS_REVISION -> Rev B
-
-Rev B SUPERSEDES Rev A
-Rev B CURRENT_FOR -> Program Common
-```
+Do not destroy historical revisions. The system must answer both current and historical questions.
 
 ## Source locations
 
-Normalized chunks should retain structured location metadata:
-- PowerPoint: slide number + shape/notes context where practical
-- PDF: page
-- Word: heading/section/paragraph anchor
-- Excel: sheet + range/table
-- Markdown: heading + line/range where practical
-
-Answers and evidence cards should expose a human-openable source link when authorized, ideally deep-linked to the native document/location where the provider supports it.
+Normalized chunks should retain structured location metadata for PowerPoint slides, PDF pages, Word headings/sections, Excel sheets/ranges, and Markdown headings/ranges where practical. Answers expose a human-openable source link only when authorized.
 
 ## Knowledge proposals
 
-AI-created reusable knowledge should be represented separately from authoritative knowledge:
-
-```yaml
-proposal_id: KP-0001
-proposal_type: lesson_learned
-status: pending_review
-proposed_by: claude-client
-based_on:
-  - SP-WELDMENT-001-B
-  - conversation:test-session-02
-statement: "..."
-reviewer_role: mbe-sme
-```
-
-A proposal is never treated as released guidance until promoted through an explicit workflow.
+AI-created reusable knowledge remains `pending_review` until explicitly promoted by an authorized human.
 
 ## Review ownership and routing
 
-Domains should be able to map detected knowledge-integrity events to responsible reviewers/SMEs, for example:
-- welding → Welding SME,
-- quality → Quality Engineering,
-- IT security → Security,
-- finance → Controller.
-
-Events suitable for review routing include unresolved conflicts, uncertain authority, possible duplicate/variant families, ambiguous supersession, governing-reference changes, and reusable AI/employee proposals.
+Domains map knowledge-integrity events to responsible reviewers/SMEs. Events include unresolved conflicts, uncertain authority, possible duplicate/variant families, ambiguous supersession, governing-reference changes, and reusable AI/employee proposals.
 
 ## High-volume ingestion principle
 
-Thousands of documents per day must not create thousands of independent truths. Ingestion should be incremental and idempotent, preserving provider IDs/change cursors and performing staged processing:
+Thousands of documents per day must not create thousands of independent truths. Ingestion is incremental and idempotent:
 
 ```text
 source event
@@ -297,27 +243,15 @@ source event
 → duplicate/revision/variant classification
 → metadata/document classification
 → content/location extraction
+→ memory-class classification
 → governing-reference/applicability extraction
 → candidate concept/relationship/conflict analysis
-→ index/graph update
+→ class-specific index/graph update
 → review queue when required
 ```
 
-The system must support batching, retry/dead-letter behavior, backpressure, partial failure isolation, and observability without weakening permission checks or provenance.
+The system supports batching, retry/dead-letter behavior, backpressure, partial failure isolation, ACL-priority processing, deletion/tombstone jobs, and observability without weakening permission checks or provenance.
 
 ## Permission model
 
-The data model must preserve source-native ACLs and safe omission.
-
-Permissions apply to:
-- artifact content,
-- metadata,
-- source links,
-- graph nodes/edges,
-- snippets,
-- source names,
-- derived relationships,
-- governing references,
-- expert/person associations.
-
-The system must support safe omission rather than revealing that inaccessible content exists. A source link is presented only when the user is authorized to know and access the source.
+Permissions apply to artifact content, metadata, source links, graph nodes/edges, snippets, source names, derived relationships, governing references, expert/person associations, and memory recall. Safe omission is preferred to leaking that inaccessible content exists.
