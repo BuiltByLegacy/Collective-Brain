@@ -1,3 +1,5 @@
+import { buildSourceManifest } from '../governed-knowledge.mjs';
+
 export const connectorContract = {
   requiredMethods:['listChanges','getArtifact','getPermissions','getRevision','getSourceLocation'],
   invariants:[
@@ -7,13 +9,33 @@ export const connectorContract = {
     'preserve and never broaden source permissions',
     'support incremental change cursors where source allows',
     'emit tombstones for deleted or inaccessible artifacts',
-    'never require end users to install software'
+    'never require end users to install software',
+    'every external artifact can produce a canonical source manifest'
   ]
 };
 
 export function normalizeSourceArtifact({provider,sourceId,name,revision,mimeType,webUrl,modifiedAt,permissions,content,locations=[],rootId}) {
   if(!provider || !sourceId || !name || !rootId) throw new Error('provider, sourceId, name, and rootId are required');
   return {provider,sourceId,rootId,name,revision:revision??null,mimeType:mimeType??null,webUrl:webUrl??null,modifiedAt:modifiedAt??null,permissions:permissions??[],content:content??'',locations};
+}
+
+export function sourceManifestFromArtifact(artifact,{artifactId=artifact.sourceId,revisionId=artifact.revision,scope=[],aclRef=null,retrievedAt=new Date().toISOString()}={}){
+  return buildSourceManifest({
+    artifactId,
+    revisionId,
+    provider:artifact.provider,
+    nativeId:artifact.sourceId,
+    versionId:artifact.revision,
+    canonicalUrl:artifact.webUrl,
+    location:artifact.locations,
+    content:artifact.content,
+    sourceModifiedAt:artifact.modifiedAt,
+    retrievedAt,
+    aclRef:aclRef??artifact.permissions,
+    scope,
+    title:artifact.name,
+    state:'current'
+  });
 }
 
 export function assertConnectorShape(connector){
