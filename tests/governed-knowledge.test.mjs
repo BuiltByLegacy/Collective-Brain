@@ -6,6 +6,7 @@ import {
   governingReference, recallGoverningReferences, historicalGoverningReference,
   ReviewRouter, IngestionPipeline, classifyMemoryCandidate, ingestArtifact
 } from '../src/governed-knowledge.mjs';
+import { sourceManifestFromArtifact } from '../src/connectors/contract.mjs';
 
 const eng={id:'eng-user',scopes:['engineering']};
 const secret={id:'secret-user',scopes:['engineering','program-x']};
@@ -22,6 +23,17 @@ test('source manifest preserves durable identity, revision proof, and permission
   assert.deepEqual(verifyIndexedContent(a,{versionId:'1',contentHash:a.contentHash}),{versionMatch:true,hashMatch:true});
   assert.equal(authorizedOpenAction(a,eng).url,'https://example.test/doc');
   assert.equal(authorizedOpenAction(a,{id:'nope',scopes:['finance']}),null);
+});
+
+test('SharePoint/OneDrive and Box normalized artifacts map to the same provider-neutral manifest contract',()=>{
+  const sharepoint=sourceManifestFromArtifact({provider:'onedrive-sharepoint',sourceId:'sp-123',rootId:'root',name:'Procedure.docx',revision:'etag-7',webUrl:'https://tenant.sharepoint.com/doc',modifiedAt:'2026-09-01T00:00:00Z',permissions:[{id:'acl'}],content:'released procedure',locations:[{page:1}]},{scope:['engineering']});
+  const box=sourceManifestFromArtifact({provider:'box',sourceId:'box-456',rootId:'root',name:'Spec.pdf',revision:'v9',webUrl:'https://app.box.com/file/456',modifiedAt:'2026-09-02T00:00:00Z',permissions:[{id:'acl2'}],content:'controlled spec',locations:[{page:2}]},{scope:['engineering']});
+  assert.equal(sharepoint.nativeId,'sp-123');
+  assert.equal(sharepoint.versionId,'etag-7');
+  assert.equal(sharepoint.canonicalUrl,'https://tenant.sharepoint.com/doc');
+  assert.equal(box.nativeId,'box-456');
+  assert.equal(box.versionId,'v9');
+  assert.equal(box.canonicalUrl,'https://app.box.com/file/456');
 });
 
 test('document relationship classification distinguishes duplicate, revision, variant, and overlap without ACL union',()=>{
@@ -89,6 +101,16 @@ test('ingestion pipeline prioritizes ACL changes, retries deterministically, qua
   const health=p.health();
   assert.equal(health.deadLetter,1);
   assert.equal(health.aclPriority,1);
+});
+
+test('burst load representing thousands/day drains idempotently with observable queue health',()=>{
+  const p=new IngestionPipeline({maxQueue:2500,concurrency:8});
+  for(let i=0;i<2000;i++) p.enqueue({provider:'sharepoint',nativeId:`doc-${i}`,versionId:'1',kind:'upsert',contentHash:`h-${i}`});
+  assert.equal(p.health().queueDepth,2000);
+  const out=p.drain(job=>({indexed:job.nativeId}));
+  assert.equal(out.length,2000);
+  assert.equal(p.health().processed,2000);
+  assert.equal(p.health().queueDepth,0);
 });
 
 test('ingestion classification separates semantic episodic procedural and evidence-only paths',()=>{
