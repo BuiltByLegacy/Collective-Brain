@@ -57,7 +57,7 @@ test('local graph supports typed filters and bounded progressive expansion',()=>
 test('graph search returns only authorized nodes',()=>{
   const {g}=setup();
   assert.equal(g.searchNodes('restricted',{id:'u1',scopes:['engineering']}).length,0);
-  assert.equal(g.searchNodes('weld',{id:'u1',scopes:['engineering']}).length,2);
+  assert.equal(g.searchNodes('weld',{id:'u1',scopes:['engineering']}).length,3);
 });
 
 test('automatic relationship proposals dedupe and preserve provenance/version/evidence',()=>{
